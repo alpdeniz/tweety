@@ -27,7 +27,7 @@ def valid_profile(f):
 
 
 class Twitter:
-    def __init__(self, profile_name: str = None, max_retires: int = 10, proxy: dict = None):
+    def __init__(self, profile_name: str = None, max_retries: int = 10, proxy: dict = None):
         """
         Initialize the Twitter Class
 
@@ -51,7 +51,7 @@ class Twitter:
         else:
             self.proxy = None
 
-        self.request = Request(self.profile_url, max_retries=max_retires, proxy=self.proxy)
+        self.request = Request(self.profile_url, max_retries=max_retries, proxy=self.proxy)
         self.user = self.get_user_info() if self.profile_url is not None else None
 
     def __verify_user(self):
