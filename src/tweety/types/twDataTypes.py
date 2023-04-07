@@ -590,13 +590,11 @@ class User(dict):
     @staticmethod
     def _get_key(user, key):
         keyValue = None
-        print(user)
         if user.get("legacy"):
             keyValue = user['legacy'].get(key)
 
         if not keyValue and user.get(key):
             keyValue = user[key]
-        print(keyValue)
 
         return keyValue
 
