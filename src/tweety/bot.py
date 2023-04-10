@@ -26,23 +26,16 @@ def valid_profile(f):
     return wrapper
 
 
-class Twitter:
-    def __init__(self, profile_name: str = None, max_retries: int = 10, proxy: dict = None):
+class Tweety:
+    def __init__(self, max_retries: int = 10, proxy: dict = None):
         """
         Initialize the Twitter Class
 
-        :param profile_name: (`str`) Profile URL or The Username of the user you are dealing with
-        :param max_retires: (`int`) Number of retries the script would make , if the guest token wasn't found
+        :param max_retries: (`int`) Number of retries the script would make , if the guest token wasn't found
         :param proxy: (`dict`) Provide the proxy you want to use while making a request
         """
-        if profile_name:
-            if profile_name.startswith("https://"):
-                self.profile_url = profile_name
-            else:
-                self.profile_url = f"https://twitter.com/{profile_name}"
-        else:
-            self.profile_url = None
 
+        self.max_retries = max_retries
         if proxy and proxy is not None:
             if proxy.get("http") and proxy.get("https"):
                 self.proxy = dict(http=proxy['http'], https=proxy['https'])
@@ -51,8 +44,23 @@ class Twitter:
         else:
             self.proxy = None
 
-        self.request = Request(self.profile_url, max_retries=max_retries, proxy=self.proxy)
-        self.user = self.get_user_info() if self.profile_url is not None else None
+    def set_user(self, profile_name: str):
+        """
+        Set user
+
+        :param profile_name: (`str`) Profile URL or The Username of the user you are dealing with
+        """
+
+        if profile_name:
+            if profile_name.startswith("https://"):
+                self.profile_url = profile_name
+            else:
+                self.profile_url = f"https://twitter.com/{profile_name}"
+        else:
+            self.profile_url = None
+
+        self.request = Request(self.profile_url, max_retries=self.max_retries, proxy=self.proxy)
+        self.user = self.fetch_user_info()
 
     def __verify_user(self):
         """
@@ -63,7 +71,10 @@ class Twitter:
         username = self.profile_url.split("/")[-1]
         return self.request.verify_user(username)
 
-    def get_user_info(self, banner_extensions: bool = False, image_extensions: bool = False):
+    def get_user_info(self):
+        return self.user
+
+    def fetch_user_info(self, banner_extensions: bool = False, image_extensions: bool = False):
         """
         Get the user available info
 
@@ -73,7 +84,7 @@ class Twitter:
         :return: .types.twDataTypes.User
         """
         if not self.profile_url:
-            raise ValueError("No Username Provided , Please initiate the class using a username or profile URL")
+            raise ValueError("No Username Provided , Please set username or profile URL")
 
         user_raw = self.__verify_user()
 
@@ -105,6 +116,23 @@ class Twitter:
         return self.user.rest_id
 
     @valid_profile
+    def paginate_tweets(self, pages: int = 1, replies: bool = False, wait_time: int = 2, cursor: str = None):
+        """
+        Get the tweets from a user
+
+        :param pages: (`int`) number of pages to be scraped
+        :param replies: (`boolean`) get the replied tweets of the user too
+        :param wait_time: (`int`) seconds to wait between multiple requests
+        :param cursor: Pagination cursor if you want to get the pages from that cursor up-to (This cursor is different from actual API cursor)
+
+
+        :return: .types.usertweet.UserTweets
+        """
+
+        userTweets = UserTweets(self.user_id, self.request, replies, wait_time, cursor)
+        return userTweets.get_tweets_page_iterator(pages)
+
+    @valid_profile
     def get_tweets(self, pages: int = 1, replies: bool = False, wait_time: int = 2, cursor: str = None):
         """
         Get the tweets from a user
@@ -120,7 +148,7 @@ class Twitter:
         if wait_time is None:
             wait_time = 0
 
-        return UserTweets(self.user_id, self.request, pages, replies, wait_time, cursor)
+        return UserTweets(self.user_id, self.request, replies, wait_time, cursor).get_tweets(pages)
 
     def get_trends(self):
         """

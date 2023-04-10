@@ -4,7 +4,7 @@ from . import Tweet, Excel, deprecated
 
 
 class UserTweets(dict):
-    def __init__(self, user_id, http, pages=1, get_replies: bool = True, wait_time=2, cursor=None):
+    def __init__(self, user_id, http, get_replies: bool = True, wait_time=2, cursor=None):
         super().__init__()
         self.tweets = []
         self.get_replies = get_replies
@@ -12,7 +12,8 @@ class UserTweets(dict):
         self.is_next_page = True
         self.http = http
         self.user_id = user_id
-        self._get_tweets(user_id, pages, get_replies, wait_time)
+        self.wait_time = wait_time
+        # self._get_tweets(user_id, pages, get_replies, wait_time)
 
     @staticmethod
     def _get_entries(response):
@@ -49,21 +50,29 @@ class UserTweets(dict):
                         pass
 
             self.is_next_page = self._get_cursor(entries)
-            for tweet in _tweets:
-                self.tweets.append(tweet)
 
-            self['tweets'] = self.tweets
             self['is_next_page'] = self.is_next_page
             self['cursor'] = self.cursor
 
-            return self
+            return _tweets
 
-    def _get_tweets(self, user_id, pages, get_replies, wait_time=2):
+    def get_tweets_page_iterator(self, pages):
         for page in range(1, int(pages) + 1):
-            self.get_next_page(user_id, get_replies)
+            tweets = self.get_next_page(self.user_id, self.get_replies)
+            yield tweets
+            
+            if self.is_next_page and page != pages:
+                time.sleep(self.wait_time)
+
+    def get_tweets(self, pages):
+        all_tweets = []
+        for page in range(1, int(pages) + 1):
+            tweets = self.get_next_page(self.user_id, self.get_replies)
+            all_tweets += tweets
 
             if self.is_next_page and page != pages:
-                time.sleep(wait_time)
+                time.sleep(self.wait_time)
+        return all_tweets
 
     def _get_cursor(self, entries):
         for entry in entries:
