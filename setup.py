@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='tweety-ns',
+    name='tweety',
     packages=['tweety', 'tweety.types'],
     version='0.6.0',
     license='MIT',
