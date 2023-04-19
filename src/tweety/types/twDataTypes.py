@@ -208,12 +208,12 @@ class Tweet(dict):
         if is_quoted:
             raw_response = self.__raw_response
             raw_tweet = None
-            if self.__raw_tweet.get("quoted_status_result"):
-                raw_tweet = self.__raw_tweet['quoted_status_result']['result']
             try:
-                if not raw_tweet and self.__raw_tweet.get("legacy"):
-                    raw_tweet = self.__raw_tweet['legacy']['retweeted_status_result']['result']['quoted_status_result']['result']
-                    return Tweet(raw_response, raw_tweet, self.http)
+                if self.__raw_tweet.get("quoted_status_result"):
+                    raw_tweet = self.__raw_tweet['quoted_status_result']['result']
+                # if not raw_tweet and self.__raw_tweet.get("legacy"):
+                #     raw_tweet = self.__raw_tweet['legacy']['retweeted_status_result']['result']['quoted_status_result']['result']
+                return Tweet(raw_response, raw_tweet, self.http)
             except:
                 return None
 
