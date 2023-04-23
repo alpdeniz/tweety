@@ -1,4 +1,4 @@
 beautifulsoup4
 httpx
-openpyxl
 dateutils
+pytest

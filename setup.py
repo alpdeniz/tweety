@@ -12,9 +12,9 @@ setup(
     keywords=['TWITTER', 'TWITTER SCRAPE', 'SCRAPE TWEETS'],
     install_requires=[
         'beautifulsoup4',
-        'openpyxl',
         'httpx',
-        'dateutils'
+        'dateutils',
+        'pytest'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
