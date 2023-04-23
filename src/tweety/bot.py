@@ -44,66 +44,23 @@ class Tweety:
         else:
             self.proxy = None
 
-    def set_user(self, profile_name: str):
+        self.request = Request(max_retries=self.max_retries, proxy=self.proxy)
+
+    def get_user(self, screen_name: str):
         """
         Set user
 
-        :param profile_name: (`str`) Profile URL or The Username of the user you are dealing with
+        :param screen_name: (`str`) Profile URL or The Username of the user you are dealing with
         """
 
-        if profile_name:
-            if profile_name.startswith("https://"):
-                self.profile_url = profile_name
+        user = self.request.get_user_by_sceen_name(screen_name)
+        if user:
+            user = User(user)
+            if user.protected:
+                raise UserProtected(f"User {screen_name} is Protected")
             else:
-                self.profile_url = f"https://twitter.com/{profile_name}"
-        else:
-            self.profile_url = None
-
-        self.request = Request(self.profile_url, max_retries=self.max_retries, proxy=self.proxy)
-        self.user = self.fetch_user_info()
-
-    def __verify_user(self):
-        """
-        Protected method to Verify the User
-
-        :return: User Json
-        """
-        username = self.profile_url.split("/")[-1]
-        return self.request.verify_user(username)
-
-    def get_user_info(self):
-        return self.user
-
-    def fetch_user_info(self, banner_extensions: bool = False, image_extensions: bool = False):
-        """
-        Get the user available info
-
-        :param banner_extensions: (`boolean`) Get the Banner extension on the user page
-        :param image_extensions: (`boolean`) Get the Image extension on the user page
-
-        :return: .types.twDataTypes.User
-        """
-        if not self.profile_url:
-            raise ValueError("No Username Provided , Please set username or profile URL")
-
-        user_raw = self.__verify_user()
-
-        if not user_raw:
-            raise UserNotFound("User {} not Found".format(self.profile_url.split("/")[-1]))
-
-        if not banner_extensions or banner_extensions is False:
-            try:
-                del user_raw['data']['user']['result']['legacy']['profile_banner_extensions']
-            except KeyError:
-                pass
-
-        if not image_extensions or image_extensions is False:
-            try:
-                del user_raw['data']['user']['result']['legacy']['profile_image_extensions']
-            except KeyError:
-                pass
-
-        return User(user_raw)
+                return user
+        raise UserNotFound("User {} not Found".format(screen_name))
 
     @property
     def user_id(self):
@@ -115,8 +72,7 @@ class Tweety:
 
         return self.user.rest_id
 
-    @valid_profile
-    def paginate_tweets(self, pages: int = 1, replies: bool = False, wait_time: int = 2, cursor: str = None):
+    def paginate_tweets(self, user_id: str, pages: int = 1, replies: bool = False, wait_time: int = 2, cursor: str = None):
         """
         Get the tweets from a user
 
@@ -129,10 +85,9 @@ class Tweety:
         :return: .types.usertweet.UserTweets
         """
 
-        userTweets = UserTweets(self.user_id, self.request, replies, wait_time, cursor)
+        userTweets = UserTweets(user_id, self.request, replies, wait_time, cursor)
         return userTweets.get_tweets_page_iterator(pages)
 
-    @valid_profile
     def get_tweets(self, pages: int = 1, replies: bool = False, wait_time: int = 2, cursor: str = None):
         """
         Get the tweets from a user

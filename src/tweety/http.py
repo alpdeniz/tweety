@@ -7,8 +7,8 @@ s.Response.json_ = custom_json
 
 
 class Request:
-    def __init__(self, profile_url, max_retries=10, proxy=None):
-        self.__builder = UrlBuilder(profile_url)
+    def __init__(self, max_retries=10, proxy=None):
+        self.__builder = UrlBuilder()
         self.__session = s.Client()
         self.__session.proxies = proxy
         self.__guest_token = self._get_guest_token(max_retries)
@@ -29,8 +29,8 @@ class Request:
         data['json'] = {}
         self.__session.post(**data)
 
-    def verify_user(self, username):
-        response = self.__session.get(**self.__builder.user_by_screen_name(username))
+    def get_user_by_sceen_name(self, screen_name):
+        response = self.__session.get(**self.__builder.user_by_screen_name(screen_name))
 
         if response.json_() and response.json().get("data"): # noqa
             return response.json()

@@ -5,7 +5,7 @@ from functools import wraps
 
 REQUEST_USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
 REQUEST_PLATFORMS = ['Linux', 'Windows']
-
+REFERRER_USERNAME = 'elonmusk'
 
 def return_with_headers(func):
 
@@ -27,8 +27,7 @@ class UrlBuilder:
     URL_SEARCH = "https://twitter.com/i/api/2/search/adaptive.json"
     URL_TWEET_DETAILS = "https://api.twitter.com/graphql/NNiD2K-nEYUfXlMwGCocMQ/TweetDetail"
 
-    def __init__(self, profile_url):
-        self.username = profile_url.split("/")[-1] if profile_url else None
+    def __init__(self):
         self.user_id = None
         self.guest_token = None
 
@@ -54,7 +53,7 @@ class UrlBuilder:
 
         if self.guest_token:
             headers['content-type'] = 'application/json'
-            headers['referer'] = f'https://twitter.com/{self.username}'
+            headers['referer'] = f'https://twitter.com/{REFERRER_USERNAME}'
             headers['sec-fetch-site'] = 'same-origin'
             headers['x-guest-token'] = self.guest_token
 
