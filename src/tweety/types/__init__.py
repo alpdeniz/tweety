@@ -1,3 +1,3 @@
-from .twDataTypes import User, Excel, Tweet, deprecated
+from .twDataTypes import User, Tweet
 
 

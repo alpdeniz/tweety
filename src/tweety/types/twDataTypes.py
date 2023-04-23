@@ -1,84 +1,8 @@
-import sys
 from dateutil import parser
-import openpyxl
 import dateutil
-import warnings
 
-try:
-    import wget
-except ModuleNotFoundError:
-    warnings.warn(' "wget" not found in system ,you will not be able to download the medias')
 WORKBOOK_HEADERS = ['Created on', 'author', 'is_retweet', 'is_reply', 'tweet_id', 'tweet_body', 'language', 'likes',
                     'retweet_count', 'source', 'medias', 'user_mentioned', 'urls', 'hashtags', 'symbols']
-
-
-def deprecated(func):
-    """
-
-    This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.
-
-    """
-
-    def new_func(*args, **kwargs):
-        warnings.warn("Call to deprecated function {}.".format(func.__name__), category=DeprecationWarning)
-        return func(*args, **kwargs)
-    new_func.__name__ = func.__name__
-    new_func.__doc__ = func.__doc__
-    new_func.__dict__.update(func.__dict__)
-    return new_func
-
-
-def bar_progress(current, total, width=80):
-    progress_message = "Downloading: %d%% [%d / %d] bytes" % (current / total * 100, current, total)
-    sys.stdout.write("\r" + progress_message)
-    sys.stdout.flush()
-
-
-class Excel:
-    def __init__(self, tweets, user, filename=None):
-        self.tweets = tweets
-        self.user = user
-        self.filename = filename
-        self.workbook = openpyxl.Workbook()
-        self.worksheet = self.workbook.create_sheet("tweets")
-        self._set_headers()
-        self.max_row = 1
-        self._write_data()
-
-    def _set_headers(self):
-        for index, value in enumerate(WORKBOOK_HEADERS, start=1):
-            self.worksheet.cell(row=1, column=index).value = value
-
-    def _write_data(self):
-        for tweet in self.tweets:
-            self.worksheet[f'A{self.max_row  + 1}'] = tweet.created_on
-            self.worksheet[f'B{self.max_row  + 1}'] = tweet.author.name
-            self.worksheet[f'C{self.max_row  + 1}'] = tweet.is_retweet
-            self.worksheet[f'D{self.max_row  + 1}'] = tweet.is_reply
-            self.worksheet[f'E{self.max_row  + 1}'] = tweet.id
-            self.worksheet[f'F{self.max_row  + 1}'] = tweet.text
-            self.worksheet[f'G{self.max_row  + 1}'] = tweet.language
-            self.worksheet[f'H{self.max_row  + 1}'] = tweet.likes
-            self.worksheet[f'I{self.max_row  + 1}'] = tweet.retweet_counts
-            self.worksheet[f'J{self.max_row  + 1}'] = tweet.source
-            self.worksheet[f'K{self.max_row  + 1}'] = ",".join([media.expanded_url for media in tweet.media]) if tweet.media else ""
-            self.worksheet[f'L{self.max_row  + 1}'] = ",".join([user_mention.screen_name for user_mention in tweet.user_mentions]) if tweet.user_mentions else ""
-            self.worksheet[f'M{self.max_row  + 1}'] = ",".join([url['expanded_url'] for url in tweet.urls]) if tweet.urls else ""
-            self.worksheet[f'N{self.max_row  + 1}'] = ",".join([hashtag['text'] for hashtag in tweet.hashtags]) if tweet.hashtags else ""
-            self.worksheet[f'O{self.max_row  + 1}'] = ",".join([symbol for symbol in tweet.symbols]) if tweet.symbols else ""
-            self.max_row += 1
-
-        if not self.filename:
-            self.filename = f"tweets-{self.user.screen_name}.xlsx"
-
-        try:
-            self.workbook.remove("sheet")
-        except ValueError:
-            pass
-
-        self.workbook.save(self.filename)
 
 
 class Tweet(dict):
@@ -108,9 +32,6 @@ class Tweet(dict):
             for thread_ in self.threads:  # noqa
                 yield thread_
 
-    @deprecated
-    def to_dict(self):
-        return self.__formatted_tweet
 
     def _format_tweet(self):
         original_tweet = self._get_original_tweet()
@@ -413,46 +334,6 @@ class Media(dict):
     def __repr__(self):
         return f"Media(id={self.id}, type={self.type})"
 
-    def download(self, filename_, show_progress=True):
-        if show_progress:
-            show_progress = bar_progress
-        else:
-            show_progress = None
-
-        if self.type == "photo":
-            filename = f"{filename_}.{self.file_format}"
-            wget.download(url=self.media_url_https, out=filename, bar=show_progress)
-            if show_progress:
-                sys.stdout.write("\n")
-            return filename
-
-        elif self.type == "video":
-            _res = [int(stream.res) for stream in self.streams if stream.res]
-            max_res = max(_res)
-            for stream in self.streams:
-                if int(stream.res) == max_res:
-                    file_format = stream.content_type.split("/")[-1]
-                    if not file_format == "x-mpegURL":
-                        filename = f"{filename_}.{file_format}"
-                        wget.download(url=stream.url, out=filename, bar=show_progress)
-                        if show_progress:
-                            sys.stdout.write("\n")
-                        return filename
-
-        elif self.type == "animated_gif":
-            file_format = self.streams[0].content_type.split("/")[-1]
-            if not file_format == "x-mpegURL":
-                filename = f"{filename_}.{file_format}"
-                wget.download(url=self.streams[0].url, out=filename, bar=show_progress)
-                if show_progress:
-                    sys.stdout.write("\n")
-                return filename
-        return None
-
-    @deprecated
-    def to_dict(self):
-        return self.__dictionary
-
 
 class Stream(dict):
     def __init__(self, videoDict, length, ratio):
@@ -478,21 +359,6 @@ class Stream(dict):
     def __repr__(self):
         return f"Stream(content_type={self.content_type}, length={self.length}, bitrate={self.bitrate}, res={self.res})"
 
-    def download(self, filename_=None, show_progress=False):
-        if show_progress:
-            show_progress = bar_progress
-        else:
-            show_progress = None
-        file_format = self.content_type.split("/")[-1]
-        if filename_:
-            filename = f"{filename_}.{file_format}"
-        else:
-            filename = None
-        wget.download(url=self.url, out=filename, bar=show_progress)
-        if show_progress:
-            sys.stdout.write("\n")
-        return filename
-
 
 class ShortUser(dict):
     def __init__(self, user_dict):
@@ -509,8 +375,6 @@ class ShortUser(dict):
     def __repr__(self):
         return f"ShortUser(id={self.id}, name={self.name})"
 
-    def to_dict(self):
-        return self.__dictionary
 
 
 class User(dict):
@@ -562,9 +426,6 @@ class User(dict):
     def __repr__(self):
         return f"User(id={self.rest_id}, name={self.name}, username={self.screen_name}, followers={self.followers_count}, verified={self.verified})"
 
-    @deprecated
-    def to_dict(self):
-        return self.__dictionary
 
     @staticmethod
     def _get_rest_id(user):

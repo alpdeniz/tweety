@@ -25,21 +25,6 @@ All Tweets included are of type `Tweet <#tweet-section>`_
         Use this method to get next of the instance user tweets , it returns the list of Tweet Objects
 
 
-    - to_xlsx()
-
-        Use this method to convert the resultant tweets to an Excel Sheet , returns Excel Object
-
-        * Optional Parameters:
-            :filename: (`str`) Filename of the output file
-
-    - to_dict()
-
-        Get the list of all the tweets
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -91,24 +76,6 @@ All Tweets included are of type `Tweet <#tweet-section>`_
         Use this method to get next of the instance user tweets , it returns the list of Tweet Objects
 
 
-    - to_xlsx()
-
-        Use this method to convert the resultant tweets to an Excel Sheet , returns Excel Object
-
-        .. note::
-            This Method isn't available with 'users' filter
-
-        * Optional Parameters:
-            :filename: (`str`) Filename of the output file
-
-    - to_dict()
-
-        Get the list of all the tweets
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -156,14 +123,6 @@ Tweet
 
 * Methods:
 ^^^^^^^^^^
-
-    - to_dict()
-
-        Get the formatted dict object
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
 
 * Attributes:
 ^^^^^^^^^^^^^
@@ -298,26 +257,6 @@ Media
 * Methods:
 ^^^^^^^^^^
 
-    - download()
-        Download the best quality media available directly to the Disk
-
-        .. note::
-            For this method to work , you need ``wget`` to be installed in the system
-
-        * Required Parameters:
-            :filename: (`str`) Filename of the output file
-
-        * Optional Parameters:
-            :show_progress: (`boolean`) Either print the download progress or not
-
-    - to_dict()
-
-        Get the original raw response dict object
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -394,24 +333,6 @@ Stream
 * Methods:
 ^^^^^^^^^^
 
-    - download()
-        Download the best quality media available directly to the Disk
-
-        .. note::
-            For this method to work , you need ``wget`` to be installed in the system
-
-        * Optional Parameters:
-            :filename: (`str`) Filename of the output file
-            :show_progress: (`boolean`) Either print the download progress or not
-
-    - to_dict()
-
-        Get the original raw response dict object
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -461,14 +382,6 @@ ShortUser
 * Methods:
 ^^^^^^^^^^
 
-    - to_dict()
-
-        Get the original raw response dict object
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -508,14 +421,6 @@ User / UserLegacy
 
 * Methods:
 ^^^^^^^^^^
-
-    - to_dict()
-
-        Get the original raw response dict object
-
-        .. warning::
-            This Method is depreciated and will be removed in future, as the object is already JSON serializable
-
 
 * Attributes:
 ^^^^^^^^^^^^^
@@ -615,11 +520,6 @@ Trends
 * Methods:
 ^^^^^^^^^^
 
-    - to_dict()
-
-        Get the original raw response dict object
-
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -659,7 +559,6 @@ Card (Usually Poll)
 
 * Methods:
 ^^^^^^^^^^
-
 
 * Attributes:
 ^^^^^^^^^^^^^
@@ -718,7 +617,6 @@ Choice
 * Methods:
 ^^^^^^^^^^
 
-
 * Attributes:
 ^^^^^^^^^^^^^
 
@@ -762,7 +660,6 @@ Place
 
 * Methods:
 ^^^^^^^^^^
-
 
 * Attributes:
 ^^^^^^^^^^^^^
@@ -819,7 +716,6 @@ Coordinates
 
 * Methods:
 ^^^^^^^^^^
-
 
 * Attributes:
 ^^^^^^^^^^^^^

@@ -1,5 +1,5 @@
 import time
-from . import Tweet, Excel, User, deprecated
+from . import Tweet, User
 
 
 class Search(dict):
@@ -102,15 +102,6 @@ class Search(dict):
 
             if self.is_next_page and page != pages:
                 time.sleep(wait_time)
-
-    def to_xlsx(self, filename=None):
-        if self.filter == "users":
-            return AttributeError("to_xlsx with 'users' filter isn't supported yet")
-        return Excel(self.tweets, f"search-{self.keyword}", filename)
-
-    @deprecated
-    def to_dict(self):
-        return self.tweets
 
     def __getitem__(self, index):
         if self.filter == "users":

@@ -1,6 +1,6 @@
 import time
 import traceback
-from . import Tweet, Excel, deprecated
+from . import Tweet
 
 
 class UserTweets(dict):
@@ -88,9 +88,6 @@ class UserTweets(dict):
 
         return False
 
-    def to_xlsx(self, filename=None):
-        return Excel(self.tweets, self.tweets[0].author, filename)
-
     def __getitem__(self, index):
         return self.tweets[index]
 
@@ -103,9 +100,5 @@ class UserTweets(dict):
 
     def __repr__(self):
         return f"UserTweets(user_id={self.user_id}, count={self.__len__()})"
-
-    @deprecated
-    def to_dict(self):
-        return self.tweets
 
 
