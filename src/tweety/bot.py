@@ -171,12 +171,15 @@ class Tweety:
             for entry in r.json()['data']['threaded_conversation_with_injections_v2']['instructions'][0]['entries']:
                 if str(entry['entryId']).split("-")[0] == "tweet":
                     raw_tweet = entry['content']['itemContent']['tweet_results']['result']
-                    if raw_tweet['rest_id'] == str(identifier):
-                        return Tweet(r, raw_tweet, self.request, True, False, True)
+                    # skip deleted or protected tweets
+                    # raw_tweet[__typename'] = 'TweetTombstone'
+                    if 'rest_id' in raw_tweet:
+                        if raw_tweet['rest_id'] == str(identifier):
+                            return Tweet(r, raw_tweet, self.request, True, False, True)
 
             raise InvalidTweetIdentifier()
         except KeyError:
-            raise InvalidTweetIdentifier()
+            raise InvalidTweetKey()
 
     def get_replies(self, tweetId: str):
         """
