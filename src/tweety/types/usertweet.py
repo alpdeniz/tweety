@@ -17,10 +17,12 @@ class UserTweets(dict):
 
     @staticmethod
     def _get_entries(response):
-        instructions = response.json()['data']['user']['result']['timeline_v2']['timeline']['instructions']
-        for instruction in instructions:
-            if instruction.get("type") == "TimelineAddEntries":
-                return instruction['entries']
+        timeline = response.json()['data']['user']['result']['timeline_v2']
+        if 'timeline' in timeline:
+            instructions = timeline['timeline']['instructions']
+            for instruction in instructions:
+                if instruction.get("type") == "TimelineAddEntries":
+                    return instruction['entries']
 
         return []
 

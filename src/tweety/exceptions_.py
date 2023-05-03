@@ -494,6 +494,18 @@ class InvalidTweetIdentifier(Exception):
         self.message = message
         super().__init__(self.message)
 
+class InvalidTweetKey(Exception):
+    """
+        Exception Raised when a tweet key is not present
+
+        Attributes:
+            message -- explanation of the error
+    """
+
+    def __init__(self, message="The key is not found within a raw tweet"):
+        self.message = message
+        super().__init__(self.message)
+
 
 class ProxyParseError(Exception):
     """
