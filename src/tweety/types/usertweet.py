@@ -29,7 +29,10 @@ class UserTweets(dict):
     @staticmethod
     def _get_tweet_content_key(tweet):
         if str(tweet['entryId']).split("-")[0] == "tweet":
-            return [tweet['content']['itemContent']['tweet_results']['result']]
+            if 'result' in tweet['content']['itemContent']['tweet_results']:
+                return [tweet['content']['itemContent']['tweet_results']['result']]
+            else:
+                return []
 
         if str(tweet['entryId']).split("-")[0] == "homeConversation":
             return [item['item']['itemContent']['tweet_results']['result']['tweet'] for item in tweet["content"]["items"]]
@@ -45,6 +48,10 @@ class UserTweets(dict):
             for entry in entries:
                 tweets = self._get_tweet_content_key(entry)
                 for tweet in tweets:
+                    # Skip deleted/suspended tweets
+                    if tweet['__typename'] == 'TweetTombstone':
+                        continue
+
                     try:
                         _tweets.append(Tweet(response, tweet, self.http))
                     except:
