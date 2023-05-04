@@ -55,11 +55,7 @@ class Tweety:
 
         user = self.request.get_user_by_sceen_name(screen_name)
         if user:
-            user = User(user)
-            if user.protected:
-                raise UserProtected(f"User {screen_name} is Protected")
-            else:
-                return user
+            return User(user)
         raise UserNotFound("User {} not Found".format(screen_name))
 
     @property
