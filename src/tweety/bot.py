@@ -189,14 +189,22 @@ class Tweety:
         r = self.request.get_tweet_detail(tweetId)
 
         tweets = []
+        reply_to_tweet = None
         try:
             for entry in r.json()['data']['threaded_conversation_with_injections_v2']['instructions'][0]['entries']:
                 info = str(entry['entryId']).split("-")
+                if info[0] == "tweet":
+                    raw_tweet = entry['content']['itemContent']['tweet_results']['result']
+                    reply_to_tweet = Tweet(r, raw_tweet, self.request, True, False, True)
                 if info[0] == "conversationthread":
                     replies = entry['content']['items']
                     for reply in replies:
                         raw_tweet = reply['item']['itemContent']['tweet_results']['result']
-                        tweets.append(Tweet(r, raw_tweet, self.request, True, False, True))
+                        reply_tweet = Tweet(r, raw_tweet, self.request, True, False, True)
+                        setattr(reply_tweet, 'reply_to', reply_to_tweet)
+                        setattr(reply_tweet, 'is_reply', True)
+                        tweets.append(reply_tweet)
+
             return tweets
         except KeyError:
             raise InvalidTweetIdentifier()

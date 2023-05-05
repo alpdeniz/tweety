@@ -9,4 +9,5 @@ def test_get_replies():
 
     assert type(tweets[0]) == Tweet
     assert tweets[0].text == '@sukutodo 😍'
+    assert tweets[0].reply_to.id == '1587156152609021958'
 
