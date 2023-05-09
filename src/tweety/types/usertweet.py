@@ -43,7 +43,11 @@ class UserTweets(dict):
         _tweets = []
         if self.is_next_page:
             response = self.http.get_tweets(user_id, replies=get_replies, cursor=self.cursor)
-            entries = self._get_entries(response)
+
+            try:
+                entries = self._get_entries(response)
+            except Exception as e:
+                raise Exception(f"Error getting page entries for user {user_id}: {e}. Response: {response}")
 
             for entry in entries:
                 tweets = self._get_tweet_content_key(entry)
