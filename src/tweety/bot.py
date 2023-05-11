@@ -192,20 +192,22 @@ class Tweety:
         reply_to_tweet = None
         try:
             for entry in r.json()['data']['threaded_conversation_with_injections_v2']['instructions'][0]['entries']:
-                # entryId is in form [tweet/conversationthread-{convId}-(tweet/cursor-showmore)-{tweet/cursor?_id}]
+                # entryId is in form "tweet/conversationthread-{tweet_id/conv_id}[-(tweet/cursor-showmore)-{tweet_id/cursor?_id}]"
                 info = str(entry['entryId']).split("-")
                 if info[0] == "tweet":
                     raw_tweet = entry['content']['itemContent']['tweet_results']['result']
                     reply_to_tweet = Tweet(r, raw_tweet, self.request, True, False, True)
                 if info[0] == "conversationthread":
-                    if "cursor" not in info:
-                        replies = entry['content']['items']
-                        for reply in replies:
+                    replies = entry['content']['items']
+                    for reply in replies:
+                        info = str(reply['entryId']).split("-")
+                        if "cursor" not in info:
                             raw_tweet = reply['item']['itemContent']['tweet_results']['result']
                             reply_tweet = Tweet(r, raw_tweet, self.request, True, False, True)
                             setattr(reply_tweet, 'reply_to', reply_to_tweet)
                             setattr(reply_tweet, 'is_reply', True)
                             tweets.append(reply_tweet)
+
             return tweets
         except KeyError:
             raise InvalidTweetIdentifier()
