@@ -103,8 +103,11 @@ class Tweet(dict):
 
     def _get_retweeted_tweet(self, is_retweet, original_tweet):
         if is_retweet:
-            retweet = original_tweet['retweeted_status_result']['result']
-            return Tweet(None, retweet, self.http)
+            try:
+                retweet = original_tweet['retweeted_status_result']['result']
+                return Tweet(None, retweet, self.http)
+            except Exception as e:
+                print(f"Error getting retweet: {e}, original tweet: {original_tweet}")
 
         return None
 
@@ -239,7 +242,10 @@ class Tweet(dict):
     @staticmethod
     def _get_tweet_text(original_tweet, is_retweet):
         if is_retweet:
-            return original_tweet['retweeted_status_result']['result']['legacy']['full_text']
+            try:
+                return original_tweet['retweeted_status_result']['result']['legacy']['full_text']
+            except Exception as e:
+                print(f"Error getting retweeted tweet text: {e}, retweeted status result: {original_tweet}")
 
         if original_tweet.get('full_text'):
             return original_tweet['full_text']
