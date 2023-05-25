@@ -4,7 +4,7 @@ from . import Tweet
 
 
 class UserTweets(dict):
-    def __init__(self, user_id, http, get_replies: bool = True, wait_time=2, cursor=None):
+    def __init__(self, user_id, http, get_replies: bool = True, wait_time=2, throttle_on_fail=10, cursor=None):
         super().__init__()
         self.tweets = []
         self.get_replies = get_replies
@@ -13,6 +13,7 @@ class UserTweets(dict):
         self.http = http
         self.user_id = user_id
         self.wait_time = wait_time
+        self.throttle_on_fail = throttle_on_fail
         # self._get_tweets(user_id, pages, get_replies, wait_time)
 
     @staticmethod
@@ -47,7 +48,12 @@ class UserTweets(dict):
             try:
                 entries = self._get_entries(response)
             except Exception as e:
-                raise Exception(f"Error getting page entries for user {user_id}: {e}. Response: {response}")
+                time.sleep(self.throttle_on_fail)
+                response = self.http.get_tweets(user_id, replies=get_replies, cursor=self.cursor)
+                try:
+                    entries = self._get_entries(response)
+                except:
+                    raise Exception(f"Error getting page entries for user {user_id} after throttle: {e}. Response: {response}")
 
             for entry in entries:
                 tweets = self._get_tweet_content_key(entry)
