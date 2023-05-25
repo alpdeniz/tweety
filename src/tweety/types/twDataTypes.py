@@ -109,7 +109,7 @@ class Tweet(dict):
             except Exception as e:
                 print(f"Error getting retweet: {e}, original tweet: {original_tweet}")
 
-        return None
+        return Tweet(None, original_tweet, self.http)
 
     def _get_threads(self):
         if not self.__raw_response:
@@ -243,7 +243,10 @@ class Tweet(dict):
     def _get_tweet_text(original_tweet, is_retweet):
         if is_retweet:
             try:
-                return original_tweet['retweeted_status_result']['result']['legacy']['full_text']
+                if 'legacy' in original_tweet['retweeted_status_result']['result']:
+                    return original_tweet['retweeted_status_result']['result']['legacy']['full_text']
+                else:
+                    return original_tweet['retweeted_status_result']['result']['tweet']['legacy']['full_text']
             except Exception as e:
                 print(f"Error getting retweeted tweet text: {e}, retweeted status result: {original_tweet}")
 
